@@ -149,7 +149,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ### Current Limitations
 1. **Classic-only generic earbuds** will appear under Classic/Bonded discovery and support **SDP UUID probing**, but will return `GATT_ERROR (133)` if you attempt a BLE GATT connection—this is expected hardware behavior when the earbud disables BLE GATT.
 2. **BLE MAC randomization:** Unpaired BLE devices may rotate addresses across power cycles.
-3. **No Phase 2–5 write/sync commands yet:** Phase 1 is strictly **read-only and non-destructive**.
+3. **No vendor write/sync commands yet:** Current discovery and Phase 2 identification features are **read-only and non-destructive**.
 
 ### Next Steps – Device Validation and Phase 3
 1. Test each mismatched generic earbud separately with the scanner and inspector, then export the diagnostic logs + GATT/SDP dumps.
