@@ -70,6 +70,7 @@ fun InspectorScreen(
   onDisconnectGatt: () -> Unit,
   onProbeClassicSdp: () -> Unit,
   onReadCharacteristic: (serviceUuid: String, characteristicUuid: String) -> Unit,
+  onReadStandardDeviceInformation: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   val colors = TwsTheme.colors
@@ -116,6 +117,13 @@ fun InspectorScreen(
           onConnectGatt = onConnectGatt,
           onDisconnectGatt = onDisconnectGatt,
           onProbeClassicSdp = onProbeClassicSdp,
+        )
+      }
+
+      item {
+        DeviceInformationProbeCard(
+          isGattReady = session?.connectionState == GattConnectionState.READY,
+          onProbe = onReadStandardDeviceInformation,
         )
       }
 
