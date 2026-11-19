@@ -50,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.data.bluetooth.ChipsetFingerprint
 import com.example.data.bluetooth.EarbudHeuristics
 import com.example.domain.model.DiscoveredDevice
 import com.example.domain.model.GattCharacteristicInfo
@@ -69,6 +70,7 @@ fun InspectorScreen(
   onDisconnectGatt: () -> Unit,
   onProbeClassicSdp: () -> Unit,
   onReadCharacteristic: (serviceUuid: String, characteristicUuid: String) -> Unit,
+  onReadStandardDeviceInformation: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
   val colors = TwsTheme.colors
@@ -115,6 +117,23 @@ fun InspectorScreen(
           onConnectGatt = onConnectGatt,
           onDisconnectGatt = onDisconnectGatt,
           onProbeClassicSdp = onProbeClassicSdp,
+        )
+      }
+
+      item {
+        DeviceInformationProbeCard(
+          isGattReady = session?.connectionState == GattConnectionState.READY,
+          onProbe = onReadStandardDeviceInformation,
+        )
+      }
+
+      item {
+        ChipsetFingerprintCard(
+          ChipsetFingerprint.assess(
+            manufacturerCompanyId = selectedDevice.advertisedCompanyId,
+            serviceUuids = selectedDevice.advertisedServiceUuids + selectedDevice.sdpUuids + session?.services.orEmpty().map { it.uuid },
+            deviceName = selectedDevice.hardwareName,
+          ),
         )
       }
 

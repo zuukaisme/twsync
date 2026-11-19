@@ -13,6 +13,8 @@ jobs:
   build-release:
     name: Build & Package APK
     runs-on: ubuntu-latest
+    env:
+      HAS_RELEASE_SIGNING: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' && secrets.STORE_PASSWORD != '' && secrets.KEY_PASSWORD != '' }}
 
     steps:
       - name: Checkout repository
@@ -25,7 +27,7 @@ jobs:
           java-version: '17'
 
       - name: Set up Android SDK & accept licenses
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Prepare keystores
         env:
@@ -61,7 +63,7 @@ jobs:
           fi
 
       - name: Build Signed Release APK (when signing secrets are configured)
-        if: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' && secrets.STORE_PASSWORD != '' && secrets.KEY_PASSWORD != '' }}
+        if: ${{ env.HAS_RELEASE_SIGNING == 'true' }}
         env:
           STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}

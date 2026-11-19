@@ -339,6 +339,7 @@ fun TwsBridgeApp(
               onDisconnectGatt = viewModel::disconnectGatt,
               onProbeClassicSdp = viewModel::probeSelectedSdp,
               onReadCharacteristic = viewModel::readCharacteristic,
+              onReadStandardDeviceInformation = viewModel::readStandardDeviceInformation,
             )
           }
 
@@ -360,7 +361,7 @@ fun TwsBridgeApp(
             )
           }
 
-          composable(TwsRoute.LabGuide.route) { LabGuideScreen() }
+          composable(TwsRoute.LabGuide.route) { LabGuideScreen(audioRoutes = audioState.outputRoutes) }
         }
       }
     }

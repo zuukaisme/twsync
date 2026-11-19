@@ -2,7 +2,7 @@
 
 **TWS Bridge** is an offline-first Android diagnostic and Bluetooth engineering application built to investigate whether two independent wireless earbuds (one left, one right) from different original pairs—especially generic/white-label earbuds with unknown chipsets—can be identified, inspected, and synchronized to operate together as a stereo TWS pair.
 
-> **Current Status:** **Phase 1 (Bluetooth Discovery & GATT/SDP Inspector)** is implemented and testable. Phases 2–5 are scoped and documented below with honest technical boundaries so no unsupported Bluetooth capabilities are faked.
+> **Current Status:** Phase 1 (Bluetooth discovery and GATT/SDP inspection) is implemented. Phase 2 now includes heuristic chipset fingerprinting and a one-tap read-only probe for standard Device Information and Battery characteristics. Phase 3 vendor synchronization, Phase 4 firmware inspection, and Phase 5 advanced audio routing remain unimplemented.
 
 ---
 
@@ -42,7 +42,7 @@ In standard True Wireless Stereo (TWS) earbuds, the left and right buds are **no
 
 ## 3. What Can & Cannot Be Accomplished Without Knowing the Chipset
 
-### What CAN Be Accomplished Without Knowing the Chipset (Phase 1)
+### What CAN Be Accomplished Without Knowing the Chipset (Phases 1–2)
 - Discover whether each earbud advertises **BLE**, **Classic BR/EDR**, or **Dual-mode**.
 - Measure **RSSI** signal strength and observe **Bluetooth Class of Device (CoD)** (e.g., `Wearable Headset` vs. `Uncategorized`).
 - Capture **Manufacturer Specific Data Company IDs** (e.g., `0x05D6` JieLi, `0x0642` Bluetrum, `0x02B0` BES, `0x03E0` Actions, `0x0094` Airoha)—**strictly treated as unverified hints**, because knockoffs frequently spoof Apple's `0x004C` Company ID for pop-up animations.
@@ -92,15 +92,15 @@ app/src/main/java/com/example/
         └── TwsBridgeViewModel.kt          # Lifecycle-safe state holder & filter orchestration
 ```
 
-### Planned Module Expansion (Phases 2–5)
-- `data/diagnostic/` *(Phase 2)*: Chipset fingerprinting engine (JieLi RCSP, BES, Bluetrum, Actions, Airoha signatures), A2DP codec status query (`BluetoothCodecStatus`), and Confirmed vs. Heuristic confidence reports.
-- `data/sync/` *(Phase 3)*: Safe vendor-protocol probing (e.g., SPP/BLE handshake detection), guided hardware/case reset workflows, and dual-connection state verification.
-- `data/firmware/` *(Phase 4)*: Read-only DFU/OTA service detection and explicit-consent safety gates (never blind flashing).
-- `data/audio/` *(Phase 5)*: `BluetoothA2dp` / `AudioDeviceInfo` / LE Audio capability evaluator and channel-routing diagnostics.
-
+### Implementation status (Phases 2–5)
+- **Phase 2 – Initial chipset identification:** Implemented a heuristic fingerprint engine using vendor-associated manufacturer company IDs, JieLi RCSP-associated service UUIDs, and explicit vendor tokens in device names. Results distinguish no evidence, one signal, multiple signals, and conflicting signals; they are never presented as confirmed silicon identification.
+- **Phase 2 – Standard device information:** Added a one-tap, read-only queue for standard GATT Manufacturer, Model, Serial, Firmware, Hardware, Software, PnP ID, and Battery Level characteristics. Unsupported or non-readable characteristics are skipped.
+- **Phase 3 – Synchronization:** Not implemented. No undocumented vendor commands, reset writes, or pairing mutations are sent.
+- **Phase 4 – Firmware:** Not implemented. No firmware read, backup, erase, or flashing operation is attempted.
+- **Phase 5 – Advanced audio:** Existing OS audio controls and channel test are available; independent dual-sink streaming and LE Audio capability evaluation are not implemented.
 ---
 
-## 5. Phase 1 & OS Controls Implementation Summary
+## 5. Phase 1–2 & OS Controls Implementation Summary
 
 - **Minimum Android Version:** Android 8.0 (API 26), targetSdk 36.
 - **Offline-First & No Root Required:** Zero network calls or `INTERNET` permission required.
@@ -111,6 +111,8 @@ app/src/main/java/com/example/
 - **Earbud Heuristic Filtering:** Highlights probable earbuds by Bluetooth Class of Device, audio/TWS UUIDs, and naming tokens while surfacing unverified Bluetooth SIG Company IDs separately.
 - **BLE GATT Client & Classic SDP Inspector:** Sequential GATT read queue (prevents Android's single-operation GATT collisions), automatic Hex + UTF-8 decoding, clear `status 133` diagnostics for Classic-only earbuds, and `fetchUuidsWithSdp()` probing.
 - **Diagnostic Console:** Real-time timestamped logs with category filters and one-tap Sharesheet export for collaborative debugging.
+- **Chipset Fingerprint:** Inspector combines manufacturer company IDs, advertised/SDP/GATT UUIDs, and device-name hints. Confidence is explicitly heuristic and warns that clone devices may spoof identifiers.
+- **Standard Device Information Probe:** One action queues readable Device Information and Battery characteristics through the existing serialized GATT read queue; no write commands are issued.
 
 ---
 
@@ -147,11 +149,11 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ### Current Limitations
 1. **Classic-only generic earbuds** will appear under Classic/Bonded discovery and support **SDP UUID probing**, but will return `GATT_ERROR (133)` if you attempt a BLE GATT connection—this is expected hardware behavior when the earbud disables BLE GATT.
 2. **BLE MAC randomization:** Unpaired BLE devices may rotate addresses across power cycles.
-3. **No Phase 2–5 write/sync commands yet:** Phase 1 is strictly **read-only and non-destructive**.
+3. **No vendor write/sync commands yet:** Current discovery and Phase 2 identification features are **read-only and non-destructive**.
 
-### Next Steps (Phase 2 – Earbud Identification)
-1. Test both mismatched generic earbuds in **Phase 1** and export the diagnostic logs + GATT/SDP dumps.
+### Next Steps – Device Validation and Phase 3
+1. Test each mismatched generic earbud separately with the scanner and inspector, then export the diagnostic logs + GATT/SDP dumps.
 2. Inspect whether either bud exposes:
    - BLE services such as `0xAE00` (JieLi RCSP), `0xFFE0`, `0xFF00`, or `0x180A` Device Information (`Manufacturer`, `Model`, `Firmware Revision`, `PnP ID`).
    - Classic **SPP (`0x1101`)** or vendor RFCOMM channels via `Probe Classic SDP`.
-3. Use those confirmed captures to build **Phase 2: Chipset & Profile Fingerprinting** tailored to the actual SoC behavior observed in the wild.
+3. Compare the chipset fingerprint with the returned Manufacturer, Model, Firmware and PnP values.\n4. Capture both earbuds separately and compare their services, identifiers and device-information values.\n5. Only after a vendor protocol is positively identified, design a documented, non-destructive synchronization workflow.
