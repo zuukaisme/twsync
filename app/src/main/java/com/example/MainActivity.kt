@@ -361,7 +361,7 @@ fun TwsBridgeApp(
             )
           }
 
-          composable(TwsRoute.LabGuide.route) { LabGuideScreen() }
+          composable(TwsRoute.LabGuide.route) { LabGuideScreen(audioRoutes = audioState.outputRoutes) }
         }
       }
     }
