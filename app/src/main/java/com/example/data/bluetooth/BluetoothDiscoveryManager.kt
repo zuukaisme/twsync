@@ -757,6 +757,54 @@ class BluetoothDiscoveryManager(
     }
   }
 
+  fun readStandardDeviceInformation() {
+    val gatt = activeGatt
+    if (gatt == null) {
+      logger.log(LogLevel.WARNING, "DEVICE_INFO", "Connect to a GATT device before probing standard device information")
+      return
+    }
+
+    val probes = listOf(
+      "0000180a-0000-1000-8000-00805f9b34fb" to listOf(
+        "00002a29-0000-1000-8000-00805f9b34fb",
+        "00002a24-0000-1000-8000-00805f9b34fb",
+        "00002a25-0000-1000-8000-00805f9b34fb",
+        "00002a26-0000-1000-8000-00805f9b34fb",
+        "00002a27-0000-1000-8000-00805f9b34fb",
+        "00002a28-0000-1000-8000-00805f9b34fb",
+        "00002a50-0000-1000-8000-00805f9b34fb",
+      ),
+      "0000180f-0000-1000-8000-00805f9b34fb" to listOf(
+        "00002a19-0000-1000-8000-00805f9b34fb",
+      ),
+    )
+
+    var queued = 0
+    probes.forEach { (serviceUuid, characteristicUuids) ->
+      val service = try {
+        gatt.getService(UUID.fromString(serviceUuid))
+      } catch (_: IllegalArgumentException) {
+        null
+      }
+      characteristicUuids.forEach { characteristicUuid ->
+        val characteristic = service?.getCharacteristic(UUID.fromString(characteristicUuid))
+        if (characteristic != null &&
+          (characteristic.properties and BluetoothGattCharacteristic.PROPERTY_READ) != 0
+        ) {
+          readCharacteristic(serviceUuid, characteristicUuid)
+          queued++
+        }
+      }
+    }
+
+    logger.log(
+      if (queued > 0) LogLevel.INFO else LogLevel.WARNING,
+      "DEVICE_INFO",
+      if (queued > 0) "Queued $queued standard Device Information / Battery reads" else "No readable standard Device Information or Battery characteristics were found",
+      "Reads are optional; many earbuds expose neither standard service.",
+    )
+  }
+
   fun readCharacteristic(serviceUuid: String, characteristicUuid: String) {
     val gatt = activeGatt ?: run {
       logger.log(LogLevel.WARNING, "GATT_READ", "No active GATT connection")
