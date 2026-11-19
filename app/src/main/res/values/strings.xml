@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">TWS Bridge</string>
+    <string name="nav_os_hub">OS Hub</string>
+    <string name="nav_controls">Controls</string>
+    <string name="nav_scanner">Scanner</string>
+    <string name="nav_inspector">Inspector</string>
+    <string name="nav_logs">Logs</string>
+    <string name="nav_lab_guide">Lab Guide</string>
+
+    <string name="dev_mode_label">Dev Mode</string>
+    <string name="controls_title">Audio &amp; Device Hub</string>
+    <string name="controls_subtitle">Volume, Output Routing &amp; Custom Earbud Names</string>
+
+    <string name="scanner_title">Bluetooth Discovery</string>
+    <string name="scanner_subtitle">Phase 1 • Dual-Mode BLE &amp; Classic Probe</string>
+    <string name="scan_start">Start Scan</string>
+    <string name="scan_stop">Stop Scan</string>
+    <string name="scan_mode_dual">BLE + Classic</string>
+    <string name="scan_mode_ble">BLE Only</string>
+    <string name="scan_mode_classic">Classic Only</string>
+
+    <string name="permission_required_title">Bluetooth Permissions Required</string>
+    <string name="permission_required_body_api31">TWS Bridge needs Nearby Devices (Scan &amp; Connect) permissions to discover earbuds, read signal strength, and inspect GATT services offline.</string>
+    <string name="permission_required_body_legacy">On Android 8–11, Location permission is required by the OS to receive Bluetooth scan results. TWS Bridge works completely offline and does not collect location data.</string>
+    <string name="permission_grant_button">Grant Permissions</string>
+
+    <string name="bluetooth_disabled_title">Bluetooth Radio is Off</string>
+    <string name="bluetooth_disabled_body">Enable Bluetooth to scan for nearby earbuds and inspect bonded audio devices.</string>
+    <string name="bluetooth_enable_button">Enable Bluetooth</string>
+    <string name="bluetooth_unsupported_title">Bluetooth Hardware Unavailable</string>
+    <string name="bluetooth_unsupported_body">This device or emulator does not expose a Bluetooth adapter. You can still adjust OS volume, inspect audio endpoints, and review the lab guide.</string>
+
+    <string name="filter_earbuds">Likely Earbuds</string>
+    <string name="filter_all">All Devices</string>
+    <string name="filter_bonded">Bonded</string>
+    <string name="filter_ble">BLE</string>
+    <string name="filter_classic">Classic</string>
+
+    <string name="empty_devices_title">No Matching Devices Yet</string>
+    <string name="empty_devices_hint">Put both earbuds into pairing mode outside their charging case, then tap Start Scan. Already paired earbuds appear automatically when Bluetooth Connect is granted.</string>
+
+    <string name="inspector_no_device_title">No Device Selected</string>
+    <string name="inspector_no_device_hint">Select any discovered or bonded device from the Scanner tab to inspect its Bluetooth transport, SDP UUIDs, and BLE GATT services.</string>
+    <string name="inspector_connect_gatt">Connect GATT</string>
+    <string name="inspector_disconnect_gatt">Disconnect</string>
+    <string name="inspector_probe_sdp">Probe Classic SDP</string>
+    <string name="inspector_read_char">Read</string>
+
+    <string name="logs_title">Diagnostic Console</string>
+    <string name="logs_share">Share</string>
+    <string name="logs_clear">Clear</string>
+    <string name="logs_empty">Discovery, GATT, and SDP diagnostic events will appear here in real time.</string>
+
+    <string name="lab_guide_title">Engineering Feasibility</string>
+    <string name="lab_guide_subtitle">Architecture, Chipsets &amp; Android API Limits</string>
+</resources>

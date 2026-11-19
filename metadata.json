@@ -1,0 +1,6 @@
+{
+  "name": "TWS Bridge",
+  "description": "Bluetooth discovery, GATT inspector, and diagnostic lab for investigating universal TWS earbud synchronization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
