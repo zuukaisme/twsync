@@ -56,7 +56,7 @@ object ChipsetFingerprint {
 
     val familyNameTokens = mapOf(
       ChipsetFamily.JIELI to listOf("jieli", "jl-"),
-      ChipsetFamily.BESTECHNIC to listOf("bestechnic", "bes"),
+      ChipsetFamily.BESTECHNIC to listOf("bestechnic"),
       ChipsetFamily.ACTIONS to listOf("actions"),
       ChipsetFamily.BLUETRUM to listOf("bluetrum"),
       ChipsetFamily.AIROHA to listOf("airoha"),
@@ -66,6 +66,17 @@ object ChipsetFingerprint {
     }
 
     val winner = evidenceByFamily.entries.maxByOrNull { it.value.size }
+    val tiedFamilies = winner?.let { selected ->
+      evidenceByFamily.entries.filter { it.value.size == selected.value.size }
+    }.orEmpty()
+    if (tiedFamilies.size > 1) {
+      return ChipsetAssessment(
+        family = ChipsetFamily.UNKNOWN,
+        confidence = FingerprintConfidence.NONE,
+        evidence = tiedFamilies.flatMap { entry -> entry.value.map { entry.key.displayName + ": " + it } },
+        caveat = "Conflicting vendor-associated signals were found. No chipset family is selected; inspect the raw advertising and GATT data manually.",
+      )
+    }
     if (winner == null) {
       val genericVendorServices = shortUuids.filter { it in setOf("ff00", "ffe0", "ffe1") }
       return ChipsetAssessment(
