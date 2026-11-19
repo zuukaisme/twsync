@@ -51,7 +51,7 @@ object ChipsetFingerprint {
     val shortUuids = normalizedUuids.mapNotNull(::shortUuid)
     if ("ae00" in shortUuids || "ae01" in shortUuids || "ae02" in shortUuids) {
       val matches = shortUuids.filter { it in setOf("ae00", "ae01", "ae02") }
-      add(ChipsetFamily.JIELI, "JieLi RCSP-associated service UUID detected (\${matches.joinToString()})")
+      add(ChipsetFamily.JIELI, "JieLi RCSP-associated service UUID detected (" + matches.joinToString() + ")")
     }
 
     val familyNameTokens = mapOf(
@@ -71,7 +71,7 @@ object ChipsetFingerprint {
       return ChipsetAssessment(
         family = ChipsetFamily.UNKNOWN,
         confidence = FingerprintConfidence.NONE,
-        evidence = if (genericVendorServices.isEmpty()) emptyList() else listOf("Generic vendor UART/service UUID detected (\${genericVendorServices.joinToString()}); it does not identify a chipset"),
+        evidence = if (genericVendorServices.isEmpty()) emptyList() else listOf("Generic vendor UART/service UUID detected (" + genericVendorServices.joinToString() + "); it does not identify a chipset"),
         caveat = "No reliable chipset signature was found. A missing signature does not mean the earbuds lack a vendor chipset.",
       )
     }
