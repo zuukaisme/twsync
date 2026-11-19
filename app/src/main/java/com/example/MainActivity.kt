@@ -339,6 +339,7 @@ fun TwsBridgeApp(
               onDisconnectGatt = viewModel::disconnectGatt,
               onProbeClassicSdp = viewModel::probeSelectedSdp,
               onReadCharacteristic = viewModel::readCharacteristic,
+              onReadStandardDeviceInformation = viewModel::readStandardDeviceInformation,
             )
           }
 
