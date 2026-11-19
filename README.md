@@ -2,7 +2,7 @@
 
 **TWS Bridge** is an offline-first Android diagnostic and Bluetooth engineering application built to investigate whether two independent wireless earbuds (one left, one right) from different original pairs—especially generic/white-label earbuds with unknown chipsets—can be identified, inspected, and synchronized to operate together as a stereo TWS pair.
 
- > **Current Status:** Phase 1 (Bluetooth discovery and GATT/SDP inspection) is implemented. Phase 2 now includes heuristic chipset fingerprinting and a one-tap read-only probe for standard Device Information and Battery characteristics. Phase 3 vendor synchronization, Phase 4 firmware inspection, and Phase 5 advanced audio routing remain unimplemented.
+> **Current Status:** Phase 1 (Bluetooth discovery and GATT/SDP inspection) is implemented. Phase 2 now includes heuristic chipset fingerprinting and a one-tap read-only probe for standard Device Information and Battery characteristics. Phase 3 vendor synchronization, Phase 4 firmware inspection, and Phase 5 advanced audio routing remain unimplemented.
 
 ---
 
@@ -42,7 +42,7 @@ In standard True Wireless Stereo (TWS) earbuds, the left and right buds are **no
 
 ## 3. What Can & Cannot Be Accomplished Without Knowing the Chipset
 
-### What CAN Be Accomplished Without Knowing the Chipset (Phase 1)
+### What CAN Be Accomplished Without Knowing the Chipset (Phases 1–2)
 - Discover whether each earbud advertises **BLE**, **Classic BR/EDR**, or **Dual-mode**.
 - Measure **RSSI** signal strength and observe **Bluetooth Class of Device (CoD)** (e.g., `Wearable Headset` vs. `Uncategorized`).
 - Capture **Manufacturer Specific Data Company IDs** (e.g., `0x05D6` JieLi, `0x0642` Bluetrum, `0x02B0` BES, `0x03E0` Actions, `0x0094` Airoha)—**strictly treated as unverified hints**, because knockoffs frequently spoof Apple's `0x004C` Company ID for pop-up animations.
