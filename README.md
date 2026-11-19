@@ -92,12 +92,12 @@ app/src/main/java/com/example/
         └── TwsBridgeViewModel.kt          # Lifecycle-safe state holder & filter orchestration
 ```
 
-### Planned Module Expansion (Phases 2–5)
-- `data/diagnostic/` *(Phase 2)*: Chipset fingerprinting engine (JieLi RCSP, BES, Bluetrum, Actions, Airoha signatures), A2DP codec status query (`BluetoothCodecStatus`), and Confirmed vs. Heuristic confidence reports.
-- `data/sync/` *(Phase 3)*: Safe vendor-protocol probing (e.g., SPP/BLE handshake detection), guided hardware/case reset workflows, and dual-connection state verification.
-- `data/firmware/` *(Phase 4)*: Read-only DFU/OTA service detection and explicit-consent safety gates (never blind flashing).
-- `data/audio/` *(Phase 5)*: `BluetoothA2dp` / `AudioDeviceInfo` / LE Audio capability evaluator and channel-routing diagnostics.
-
+### Implementation status (Phases 2–5)
+- **Phase 2 – Initial chipset identification:** Implemented a heuristic fingerprint engine using vendor-associated manufacturer company IDs, JieLi RCSP-associated service UUIDs, and explicit vendor tokens in device names. Results distinguish no evidence, one signal, multiple signals, and conflicting signals; they are never presented as confirmed silicon identification.
+- **Phase 2 – Standard device information:** Added a one-tap, read-only queue for standard GATT Manufacturer, Model, Serial, Firmware, Hardware, Software, PnP ID, and Battery Level characteristics. Unsupported or non-readable characteristics are skipped.
+- **Phase 3 – Synchronization:** Not implemented. No undocumented vendor commands, reset writes, or pairing mutations are sent.
+- **Phase 4 – Firmware:** Not implemented. No firmware read, backup, erase, or flashing operation is attempted.
+- **Phase 5 – Advanced audio:** Existing OS audio controls and channel test are available; independent dual-sink streaming and LE Audio capability evaluation are not implemented.
 ---
 
 ## 5. Phase 1–2 & OS Controls Implementation Summary
@@ -110,7 +110,9 @@ app/src/main/java/com/example/
 - **Dual-Mode Discovery:** Runs BLE low-latency scanning alongside Classic BR/EDR inquiry (`startDiscovery`) and loads system-bonded devices immediately.
 - **Earbud Heuristic Filtering:** Highlights probable earbuds by Bluetooth Class of Device, audio/TWS UUIDs, and naming tokens while surfacing unverified Bluetooth SIG Company IDs separately.
 - **BLE GATT Client & Classic SDP Inspector:** Sequential GATT read queue (prevents Android's single-operation GATT collisions), automatic Hex + UTF-8 decoding, clear `status 133` diagnostics for Classic-only earbuds, and `fetchUuidsWithSdp()` probing.
-- **Diagnostic Console:** Real-time timestamped logs with category filters and one-tap Sharesheet export for collaborative debugging.\n- **Chipset Fingerprint:** Inspector combines manufacturer company IDs, advertised/SDP/GATT UUIDs, and device-name hints. Confidence is explicitly heuristic and warns that clone devices may spoof identifiers.\n- **Standard Device Information Probe:** One action queues readable Device Information and Battery characteristics through the existing serialized GATT read queue; no write commands are issued.
+- **Diagnostic Console:** Real-time timestamped logs with category filters and one-tap Sharesheet export for collaborative debugging.
+- **Chipset Fingerprint:** Inspector combines manufacturer company IDs, advertised/SDP/GATT UUIDs, and device-name hints. Confidence is explicitly heuristic and warns that clone devices may spoof identifiers.
+- **Standard Device Information Probe:** One action queues readable Device Information and Battery characteristics through the existing serialized GATT read queue; no write commands are issued.
 
 ---
 
@@ -154,4 +156,5 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 2. Inspect whether either bud exposes:
    - BLE services such as `0xAE00` (JieLi RCSP), `0xFFE0`, `0xFF00`, or `0x180A` Device Information (`Manufacturer`, `Model`, `Firmware Revision`, `PnP ID`).
    - Classic **SPP (`0x1101`)** or vendor RFCOMM channels via `Probe Classic SDP`.
-3. Compare the new chipset fingerprint with the returned Manufacturer, Model, Firmware and PnP values.\n4. Capture the two earbuds separately and compare their services, identifiers and device-information values before designing any vendor-specific synchronization workflow.
+3. Compare the new chipset fingerprint with the returned Manufacturer, Model, Firmware and PnP values.
+4. Capture the two earbuds separately and compare their services, identifiers and device-information values before designing any vendor-specific synchronization workflow.
