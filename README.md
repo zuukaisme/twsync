@@ -2,7 +2,7 @@
 
 **TWS Bridge** is an offline-first Android diagnostic and Bluetooth engineering application built to investigate whether two independent wireless earbuds (one left, one right) from different original pairs—especially generic/white-label earbuds with unknown chipsets—can be identified, inspected, and synchronized to operate together as a stereo TWS pair.
 
-> **Current Status:** **Phase 1 (Bluetooth Discovery & GATT/SDP Inspector)** is implemented and testable. Phases 2–5 are scoped and documented below with honest technical boundaries so no unsupported Bluetooth capabilities are faked.
+ > **Current Status:** Phase 1 (Bluetooth discovery and GATT/SDP inspection) is implemented. Phase 2 now includes heuristic chipset fingerprinting and a one-tap read-only probe for standard Device Information and Battery characteristics. Phase 3 vendor synchronization, Phase 4 firmware inspection, and Phase 5 advanced audio routing remain unimplemented.
 
 ---
 
@@ -100,7 +100,7 @@ app/src/main/java/com/example/
 
 ---
 
-## 5. Phase 1 & OS Controls Implementation Summary
+## 5. Phase 1–2 & OS Controls Implementation Summary
 
 - **Minimum Android Version:** Android 8.0 (API 26), targetSdk 36.
 - **Offline-First & No Root Required:** Zero network calls or `INTERNET` permission required.
@@ -110,7 +110,7 @@ app/src/main/java/com/example/
 - **Dual-Mode Discovery:** Runs BLE low-latency scanning alongside Classic BR/EDR inquiry (`startDiscovery`) and loads system-bonded devices immediately.
 - **Earbud Heuristic Filtering:** Highlights probable earbuds by Bluetooth Class of Device, audio/TWS UUIDs, and naming tokens while surfacing unverified Bluetooth SIG Company IDs separately.
 - **BLE GATT Client & Classic SDP Inspector:** Sequential GATT read queue (prevents Android's single-operation GATT collisions), automatic Hex + UTF-8 decoding, clear `status 133` diagnostics for Classic-only earbuds, and `fetchUuidsWithSdp()` probing.
-- **Diagnostic Console:** Real-time timestamped logs with category filters and one-tap Sharesheet export for collaborative debugging.
+- **Diagnostic Console:** Real-time timestamped logs with category filters and one-tap Sharesheet export for collaborative debugging.\n- **Chipset Fingerprint:** Inspector combines manufacturer company IDs, advertised/SDP/GATT UUIDs, and device-name hints. Confidence is explicitly heuristic and warns that clone devices may spoof identifiers.\n- **Standard Device Information Probe:** One action queues readable Device Information and Battery characteristics through the existing serialized GATT read queue; no write commands are issued.
 
 ---
 
@@ -154,4 +154,4 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 2. Inspect whether either bud exposes:
    - BLE services such as `0xAE00` (JieLi RCSP), `0xFFE0`, `0xFF00`, or `0x180A` Device Information (`Manufacturer`, `Model`, `Firmware Revision`, `PnP ID`).
    - Classic **SPP (`0x1101`)** or vendor RFCOMM channels via `Probe Classic SDP`.
-3. Use those confirmed captures to build **Phase 2: Chipset & Profile Fingerprinting** tailored to the actual SoC behavior observed in the wild.
+3. Compare the new chipset fingerprint with the returned Manufacturer, Model, Firmware and PnP values.\n4. Capture the two earbuds separately and compare their services, identifiers and device-information values before designing any vendor-specific synchronization workflow.
