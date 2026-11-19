@@ -25,11 +25,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.R
+import com.example.data.audio.OutputAudioRoute
 import com.example.ui.components.StatusPill
 import com.example.ui.theme.TwsTheme
 
 @Composable
-fun LabGuideScreen(modifier: Modifier = Modifier) {
+fun LabGuideScreen(
+  audioRoutes: List<OutputAudioRoute> = emptyList(),
+  modifier: Modifier = Modifier,
+) {
   val colors = TwsTheme.colors
 
   Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
@@ -50,6 +54,34 @@ fun LabGuideScreen(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.bodySmall,
             color = colors.inkSecondary,
           )
+        }
+      }
+
+      item {
+        Card(
+          colors = CardDefaults.cardColors(containerColor = colors.chromeBg),
+          border = BorderStroke(1.dp, colors.chromeBorder),
+          shape = RoundedCornerShape(14.dp),
+          modifier = Modifier.fillMaxWidth(),
+        ) {
+          Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("LIVE AUDIO OUTPUT CHECK", style = MaterialTheme.typography.labelMedium, color = colors.cyan)
+            Text("Outputs visible to Android", style = MaterialTheme.typography.titleMedium, color = colors.chromeOnSurface)
+            if (audioRoutes.isEmpty()) {
+              Text("No output devices are currently reported by AudioManager.", style = MaterialTheme.typography.bodySmall, color = colors.chromeOnSurface.copy(alpha = 0.72f))
+            } else {
+              audioRoutes.forEach { route ->
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                  Column(modifier = Modifier.weight(1f)) {
+                    Text(route.productName, style = MaterialTheme.typography.bodyMedium, color = colors.chromeOnSurface)
+                    Text(route.typeLabel, style = MaterialTheme.typography.labelSmall, color = colors.chromeOnSurface.copy(alpha = 0.65f))
+                  }
+                  Text(route.channelCounts, style = MaterialTheme.typography.labelMedium, color = if (route.isBluetooth) colors.teal else colors.chromeOnSurface.copy(alpha = 0.72f))
+                }
+              }
+            }
+            Text("This is an OS output inventory, not proof that Android can stream to multiple Bluetooth earbuds at once. Actual routing depends on the phone manufacturer, Bluetooth stack and earbud support.", style = MaterialTheme.typography.bodySmall, color = colors.chromeOnSurface.copy(alpha = 0.72f))
+          }
         }
       }
 
