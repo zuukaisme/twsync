@@ -49,6 +49,19 @@ class ChipsetFingerprintTest {
   }
 
   @Test
+  fun conflictingVendorSignalsDoNotSelectAChipset() {
+    val result = ChipsetFingerprint.assess(
+      manufacturerCompanyId = 0x05D6,
+      serviceUuids = emptyList(),
+      deviceName = "Airoha Audio",
+    )
+
+    assertEquals(ChipsetFamily.UNKNOWN, result.family)
+    assertEquals(FingerprintConfidence.NONE, result.confidence)
+    assertTrue(result.caveat.contains("Conflicting"))
+  }
+
+  @Test
   fun unknownDeviceProducesNoChipsetClaim() {
     val result = ChipsetFingerprint.assess(
       manufacturerCompanyId = null,
