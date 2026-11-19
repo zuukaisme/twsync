@@ -151,10 +151,9 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 2. **BLE MAC randomization:** Unpaired BLE devices may rotate addresses across power cycles.
 3. **No Phase 2–5 write/sync commands yet:** Phase 1 is strictly **read-only and non-destructive**.
 
-### Next Steps (Phase 2 – Earbud Identification)
-1. Test both mismatched generic earbuds in **Phase 1** and export the diagnostic logs + GATT/SDP dumps.
+### Next Steps – Device Validation and Phase 3
+1. Test each mismatched generic earbud separately with the scanner and inspector, then export the diagnostic logs + GATT/SDP dumps.
 2. Inspect whether either bud exposes:
    - BLE services such as `0xAE00` (JieLi RCSP), `0xFFE0`, `0xFF00`, or `0x180A` Device Information (`Manufacturer`, `Model`, `Firmware Revision`, `PnP ID`).
    - Classic **SPP (`0x1101`)** or vendor RFCOMM channels via `Probe Classic SDP`.
-3. Compare the new chipset fingerprint with the returned Manufacturer, Model, Firmware and PnP values.
-4. Capture the two earbuds separately and compare their services, identifiers and device-information values before designing any vendor-specific synchronization workflow.
+3. Compare the chipset fingerprint with the returned Manufacturer, Model, Firmware and PnP values.\n4. Capture both earbuds separately and compare their services, identifiers and device-information values.\n5. Only after a vendor protocol is positively identified, design a documented, non-destructive synchronization workflow.
