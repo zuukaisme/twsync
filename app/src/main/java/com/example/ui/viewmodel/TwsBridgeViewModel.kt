@@ -257,6 +257,10 @@ class TwsBridgeViewModel(application: Application) : AndroidViewModel(applicatio
     discoveryManager.readCharacteristic(serviceUuid, characteristicUuid)
   }
 
+  fun readStandardDeviceInformation() {
+    discoveryManager.readStandardDeviceInformation()
+  }
+
   fun clearLogs() {
     logger.clear()
     logger.log(LogLevel.INFO, "LOGS", "Diagnostic log buffer cleared")
