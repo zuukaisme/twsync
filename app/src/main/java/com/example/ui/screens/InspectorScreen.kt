@@ -141,6 +141,17 @@ fun InspectorScreen(
         item { AdvertisedAndSdpCard(device = selectedDevice) }
       }
 
+      if (
+        selectedDevice.rawAdvertisementHex != null ||
+        selectedDevice.manufacturerPayloads.isNotEmpty() ||
+        selectedDevice.serviceDataPayloads.isNotEmpty() ||
+        selectedDevice.txPowerLevel != null ||
+        selectedDevice.advertisingFlags != null ||
+        selectedDevice.connectable != null
+      ) {
+        item { AdvertisementDetailsCard(device = selectedDevice) }
+      }
+
       if (session != null && session.services.isNotEmpty()) {
         item {
           Text(
