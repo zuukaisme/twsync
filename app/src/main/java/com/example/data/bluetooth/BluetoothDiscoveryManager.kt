@@ -933,9 +933,18 @@ class BluetoothDiscoveryManager(
       }
     val uuids = record?.serviceUuids?.mapNotNull { it?.uuid?.toString() }.orEmpty()
     var companyId: Int? = null
+    val manufacturerPayloads = mutableListOf<String>()
     val mfgData = record?.manufacturerSpecificData
     if (mfgData != null && mfgData.size() > 0) {
-      companyId = mfgData.keyAt(0)
+      for (index in 0 until mfgData.size()) {
+        val id = mfgData.keyAt(index)
+        val payload = mfgData.valueAt(index)
+        if (companyId == null) companyId = id
+        manufacturerPayloads += "Company ID 0x%04X: %s".format(id, formatAdvertisementBytes(payload))
+      }
+    }
+    val serviceData = record?.serviceData.orEmpty().map { (uuid, payload) ->
+      "${uuid.uuid}: ${formatAdvertisementBytes(payload)}"
     }
     upsertDiscoveredDevice(
       device = device,
@@ -945,6 +954,12 @@ class BluetoothDiscoveryManager(
       companyId = companyId,
       fromClassicDiscovery = false,
       isBondedSnapshot = false,
+      rawAdvertisementHex = record?.bytes?.let(::formatAdvertisementBytes),
+      manufacturerPayloads = manufacturerPayloads,
+      serviceDataPayloads = serviceData,
+      txPowerLevel = record?.txPowerLevel?.takeIf { it != Int.MIN_VALUE },
+      advertisingFlags = record?.advertiseFlags?.takeIf { it >= 0 },
+      connectable = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) result.isConnectable else null,
     )
   }
 
@@ -957,6 +972,12 @@ class BluetoothDiscoveryManager(
     companyId: Int?,
     fromClassicDiscovery: Boolean,
     isBondedSnapshot: Boolean,
+    rawAdvertisementHex: String? = null,
+    manufacturerPayloads: List<String> = emptyList(),
+    serviceDataPayloads: List<String> = emptyList(),
+    txPowerLevel: Int? = null,
+    advertisingFlags: Int? = null,
+    connectable: Boolean? = null,
   ) {
     val address = device.address ?: return
     rawDeviceMap[address] = device
@@ -1047,6 +1068,12 @@ class BluetoothDiscoveryManager(
         advertisedCompanyHint = EarbudHeuristics.resolveCompanyHint(mergedCompanyId),
         advertisedServiceUuids = mergedUuids,
         sdpUuids = mergedSdpUuids,
+        rawAdvertisementHex = rawAdvertisementHex ?: previous?.rawAdvertisementHex,
+        manufacturerPayloads = (previous?.manufacturerPayloads.orEmpty() + manufacturerPayloads).distinct(),
+        serviceDataPayloads = (previous?.serviceDataPayloads.orEmpty() + serviceDataPayloads).distinct(),
+        txPowerLevel = txPowerLevel ?: previous?.txPowerLevel,
+        advertisingFlags = advertisingFlags ?: previous?.advertisingFlags,
+        connectable = connectable ?: previous?.connectable,
         isBondedSnapshot = isBondedSnapshot || (previous?.isBondedSnapshot == true),
         lastSeenMs = System.currentTimeMillis(),
       )
@@ -1089,6 +1116,9 @@ class BluetoothDiscoveryManager(
       )
     emitSortedDevices()
   }
+
+  private fun formatAdvertisementBytes(bytes: ByteArray): String =
+    bytes.joinToString(" ") { byte -> "%02X".format(byte.toInt() and 0xFF) }
 
   private fun emitSortedDevices() {
     _devices.value =
